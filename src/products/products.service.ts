@@ -1,8 +1,9 @@
-import { Injectable, InternalServerErrorException, Logger, NotFoundException, OnModuleInit } from '@nestjs/common';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { RpcException } from '@nestjs/microservices';
 import { PrismaClient } from '@prisma/client';
 import { PaginationDto } from 'src/common';
+import { CreateProductDto } from './dto/create-product.dto';
+import { UpdateProductDto } from './dto/update-product.dto';
 
 @Injectable()
 export class ProductsService extends PrismaClient implements OnModuleInit {
@@ -42,7 +43,7 @@ export class ProductsService extends PrismaClient implements OnModuleInit {
       where: { id, status: 'E' }
     });
     if (!product) {
-      throw new NotFoundException(`Product with id #${id} not found.`);
+      throw new RpcException({status:404, message:`Product with id #${id} not found.`});
     }
     return product;
   }
@@ -55,7 +56,7 @@ export class ProductsService extends PrismaClient implements OnModuleInit {
         data: data
       })
     } catch (error) {
-      throw new InternalServerErrorException(`Error updating product`);
+      throw new RpcException(`Error updating product`);
     }
   }
 
@@ -68,7 +69,7 @@ export class ProductsService extends PrismaClient implements OnModuleInit {
         }
       })
     } catch (error) {
-      throw new InternalServerErrorException(`Error deleting product`);
+      throw new RpcException(`Error deleting product`);
     }
   }
 }
